@@ -3,55 +3,55 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id              String        @id @default(cuid())
-  email           String        @unique
-  name            String
-  passwordHash    String?
-  googleId        String?       @unique
-  resumeText      String?
-  aiCallsToday    Int           @default(0)
-  aiCallsResetAt  DateTime      @default(now())
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  applications    Application[]
-  aiLogs          AILog[]
+  id             String        @id @default(cuid())
+  email          String        @unique
+  name           String
+  passwordHash   String?
+  googleId       String?       @unique
+  resumeText     String?
+  aiCallsToday   Int           @default(0)
+  aiCallsResetAt DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  aiLogs         AILog[]
+  applications   Application[]
 }
 
 model Application {
-  id           String       @id @default(cuid())
+  id           String    @id @default(cuid())
   userId       String
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   company      String
   role         String
-  status       Status       @default(SAVED)
+  status       Status    @default(SAVED)
   source       String?
   jobUrl       String?
   notes        String?
   salaryMin    Int?
   salaryMax    Int?
-  currency     String       @default("INR")
+  currency     String    @default("INR")
   appliedDate  DateTime?
   followupDate DateTime?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   aiLogs       AILog[]
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AILog {
   id            String       @id @default(cuid())
   userId        String
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   applicationId String?
-  application   Application? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
   type          AILogType
   input         String
   output        String
   createdAt     DateTime     @default(now())
+  application   Application? @relation(fields: [applicationId], references: [id])
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum Status {
