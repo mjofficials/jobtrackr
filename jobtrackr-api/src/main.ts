@@ -10,6 +10,18 @@ async function bootstrap() {
     .setTitle('JobTrackr API')
     .setDescription('Job application tracking system')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'token',
+    )
+    .addSecurityRequirements('token')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
