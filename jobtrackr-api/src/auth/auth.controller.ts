@@ -1,9 +1,11 @@
-import { Body, Controller, Post, Get, Req, UseGuards } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { MeResponseDto } from './dto/me-response.dto';
+import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Authentication')
 @ApiBearerAuth()
@@ -26,7 +28,15 @@ export class AuthController {
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get user profile' })
-  profile(@Req() req: any) {
-    return req.user;
+  profile(@GetUser('id') userId: string) {
+    return this.authService.getMe(userId);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get current user' })
+  @ApiOkResponse({ type: MeResponseDto })
+  getMe(@GetUser('id') userId: string) {
+    return this.authService.getMe(userId);
   }
 }
