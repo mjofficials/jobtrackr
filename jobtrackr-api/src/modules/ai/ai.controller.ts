@@ -7,6 +7,7 @@ import { FollowUpEmailResponseDto } from './dto/follow-up-email-response.dto';
 import { ApplicationAiRequestDto } from './dto/application-ai-request.dto';
 import { InterviewPrepResponseDto } from './dto/interview-prep-response.dto';
 import { MatchScoreResponseDto } from './dto/match-score-response.dto';
+import { AiUsageResponseDto } from './dto/ai-usage-response.dto';
 
 !ApiTags('AI');
 @ApiBearerAuth()
@@ -46,5 +47,12 @@ export class AiController {
   @ApiOkResponse({ type: MatchScoreResponseDto })
   generateMatchScore(@GetUser('id') userId: string, @Body() dto: ApplicationAiRequestDto) {
     return this.aiService.generateMatchScore(userId, dto.applicationId);
+  }
+
+  @Get('usage')
+  @ApiOperation({ summary: 'Get AI usage' })
+  @ApiOkResponse({ type: AiUsageResponseDto })
+  getUsage(@GetUser('id') userId: string) {
+    return this.aiService.getUsage(userId);
   }
 }

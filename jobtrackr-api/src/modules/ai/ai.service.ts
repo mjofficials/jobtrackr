@@ -1,10 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AILogType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ForbiddenException } from '@nestjs/common';
+import { AI_DAILY_LIMIT } from './constants/ai.constants';
+import { MockAiProvider } from './providers/mock-ai.provider';
+
+type CreateAiLogInput = {
+  type: AILogType;
+  userId: string;
+  applicationId: string;
+  input: string;
+  output: string;
+};
 
 @Injectable()
 export class AiService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly aiProvider: MockAiProvider
+  ) {}
 
   async findAll(userId: string) {
     return this.prisma.aILog.findMany({
@@ -41,43 +55,27 @@ export class AiService {
   }
 
   async generateFollowUpEmail(userId: string, applicationId: string) {
-    const application = await this.prisma.application.findFirst({
-      where: {
-        id: applicationId,
-        userId,
-      },
+    await this.validateAiUsage(userId);
+
+    const application = await this.findOwnedApplication(userId, applicationId);
+
+    const email = await this.aiProvider.generateFollowUpEmail(
+      application.company,
+      application.role
+    );
+
+    await this.createAiLog({
+      type: AILogType.FOLLOW_UP_EMAIL,
+      userId,
+      applicationId,
+      input: JSON.stringify({
+        company: application.company,
+        role: application.role,
+      }),
+      output: email,
     });
 
-    if (!application) {
-      throw new NotFoundException('Application not found');
-    }
-
-    const email = `
-        Dear Hiring Team,
-
-        I hope you're doing well.
-
-        I wanted to follow up regarding my application for the ${application.role} position at ${application.company}.
-
-        I remain very interested in the opportunity and would appreciate any updates regarding the hiring process.
-
-        Thank you for your time and consideration.
-
-        Best regards
-    `;
-
-    await this.prisma.aILog.create({
-      data: {
-        userId,
-        applicationId,
-        type: AILogType.FOLLOW_UP_EMAIL,
-        input: JSON.stringify({
-          company: application.company,
-          role: application.role,
-        }),
-        output: email,
-      },
-    });
+    await this.incrementAiUsage(userId);
 
     return {
       email,
@@ -85,38 +83,27 @@ export class AiService {
   }
 
   async generateInterviewPrep(userId: string, applicationId: string) {
-    const application = await this.prisma.application.findFirst({
-      where: {
-        id: applicationId,
-        userId,
-      },
+    await this.validateAiUsage(userId);
+
+    const application = await this.findOwnedApplication(userId, applicationId);
+
+    const questions = await this.aiProvider.generateInterviewPrep(
+      application.company,
+      application.role
+    );
+
+    await this.createAiLog({
+      type: AILogType.INTERVIEW_PREP,
+      userId,
+      applicationId,
+      input: JSON.stringify({
+        company: application.company,
+        role: application.role,
+      }),
+      output: JSON.stringify(questions),
     });
 
-    if (!application) {
-      throw new NotFoundException('Application not found');
-    }
-
-    const questions = [
-      `Tell me about yourself.`,
-      `Why do you want to work at ${application.company}?`,
-      `Why are you interested in the ${application.role} position?`,
-      `Describe a challenging project you've worked on.`,
-      `What are your strengths and weaknesses?`,
-      `Why should we hire you?`,
-    ];
-
-    await this.prisma.aILog.create({
-      data: {
-        userId,
-        applicationId,
-        type: AILogType.INTERVIEW_PREP,
-        input: JSON.stringify({
-          company: application.company,
-          role: application.role,
-        }),
-        output: JSON.stringify(questions),
-      },
-    });
+    await this.incrementAiUsage(userId);
 
     return {
       questions,
@@ -124,6 +111,8 @@ export class AiService {
   }
 
   async generateMatchScore(userId: string, applicationId: string) {
+    await this.validateAiUsage(userId);
+
     const [user, application] = await Promise.all([
       this.prisma.user.findUnique({
         where: {
@@ -134,72 +123,123 @@ export class AiService {
         },
       }),
 
-      this.prisma.application.findFirst({
-        where: {
-          id: applicationId,
-          userId,
-        },
-      }),
+      this.findOwnedApplication(userId, applicationId),
     ]);
+
+    const result = await this.aiProvider.generateMatchScore({
+      resumeText: user?.resumeText,
+      company: application.company,
+      role: application.role,
+      notes: application.notes,
+      jobUrl: application.jobUrl,
+      salaryMin: application.salaryMin,
+      salaryMax: application.salaryMax,
+    });
+
+    await this.createAiLog({
+      type: AILogType.MATCH_SCORE,
+      applicationId,
+      userId,
+      input: JSON.stringify({
+        hasResume: !!user?.resumeText,
+        company: application.company,
+        role: application.role,
+      }),
+      output: JSON.stringify({
+        score: result.score,
+        summary: result.summary,
+      }),
+    });
+
+    await this.incrementAiUsage(userId);
+
+    return result;
+  }
+
+  //   Helper methods
+  private async findOwnedApplication(userId: string, applicationId: string) {
+    const application = await this.prisma.application.findFirst({
+      where: {
+        id: applicationId,
+        userId,
+      },
+    });
 
     if (!application) {
       throw new NotFoundException('Application not found');
     }
 
-    let score = 40;
+    return application;
+  }
 
-    if (user?.resumeText) {
-      score += 20;
+  private async createAiLog(data: CreateAiLogInput) {
+    return this.prisma.aILog.create({ data });
+  }
+
+  private async validateAiUsage(userId: string) {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        id: userId,
+      },
+      select: {
+        aiCallsToday: true,
+        aiCallsResetAt: true,
+      },
+    });
+
+    const now = new Date();
+
+    const shouldReset =
+      user.aiCallsResetAt.getDate() !== now.getDate() ||
+      user.aiCallsResetAt.getMonth() !== now.getMonth() ||
+      user.aiCallsResetAt.getFullYear() !== now.getFullYear();
+
+    if (shouldReset) {
+      await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          aiCallsToday: 0,
+          aiCallsResetAt: now,
+        },
+      });
+
+      return;
     }
 
-    if (application.notes) {
-      score += 10;
+    if (user.aiCallsToday >= AI_DAILY_LIMIT) {
+      throw new ForbiddenException('Daily AI limit reached');
     }
+  }
 
-    if (application.jobUrl) {
-      score += 10;
-    }
-
-    if (application.salaryMin) {
-      score += 10;
-    }
-
-    if (application.salaryMax) {
-      score += 10;
-    }
-
-    score = Math.min(score, 100);
-
-    let summary = '';
-
-    if (score >= 80) {
-      summary = 'Strong match based on available profile and application information.';
-    } else if (score >= 60) {
-      summary = 'Moderate match with some relevant information available.';
-    } else {
-      summary = 'Limited information available to determine job compatibility.';
-    }
-
-    await this.prisma.aILog.create({
+  private async incrementAiUsage(userId: string) {
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
       data: {
-        userId,
-        applicationId,
-        type: AILogType.MATCH_SCORE,
-        input: JSON.stringify({
-          hasResume: !!user?.resumeText,
-          company: application.company,
-          role: application.role,
-        }),
-        output: JSON.stringify({
-          score,
-          summary,
-        }),
+        aiCallsToday: {
+          increment: 1,
+        },
+      },
+    });
+  }
+
+  async getUsage(userId: string) {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        id: userId,
+      },
+      select: {
+        aiCallsToday: true,
       },
     });
 
     return {
-      score,
-      summary,
+      used: user.aiCallsToday,
+      limit: AI_DAILY_LIMIT,
+      remaining: AI_DAILY_LIMIT - user.aiCallsToday,
     };
   }
 }
