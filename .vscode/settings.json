@@ -1,5 +1,6 @@
 {
   "eslint.codeActionsOnSave.options": {},
   "eslint.codeActionsOnSave.rules": null,
-  "eslint.options": {}
+  "eslint.options": {},
+  "prettier.printWidth": 100
 }

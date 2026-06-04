@@ -10,15 +10,10 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { CreateApplicationDto } from './dto/create-application.dto';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApplicationsService } from './applications.service';
-import {
-  ApiBearerAuth,
-  ApiNotFoundResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
 
 @ApiTags('Applications')
@@ -54,7 +49,7 @@ export class ApplicationsController {
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateApplicationDto,
-    @Req() req: any,
+    @Req() req: any
   ) {
     return this.applicationsService.update(id, dto, req.user.userId);
   }

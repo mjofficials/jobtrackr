@@ -22,12 +22,8 @@ export class ApplicationsService {
 
   async findAll(userId: string) {
     const applications = await this.prisma.application.findMany({
-      where: {
-        userId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
     });
     return {
       count: applications.length,
@@ -55,9 +51,7 @@ export class ApplicationsService {
     }
 
     return this.prisma.application.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: dto,
     });
   }
@@ -70,9 +64,7 @@ export class ApplicationsService {
     }
 
     await this.prisma.application.delete({
-      where: {
-        id,
-      },
+      where: { id },
     });
 
     return {
@@ -82,10 +74,7 @@ export class ApplicationsService {
 
   private async findApplicationByIdAndUser(id: string, userId: string) {
     return this.prisma.application.findFirst({
-      where: {
-        id,
-        userId,
-      },
+      where: { id, userId },
     });
   }
 }
