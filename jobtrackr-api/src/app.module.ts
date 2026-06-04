@@ -1,23 +1,22 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { ApplicationsModule } from './applications/applications.module';
-import { DashboardModule } from './dashboard/dashboard.module';
-import { ProfileModule } from './profile/profile.module';
+import { ProfileModule } from './modules/profile/profile.module';
+import { HealthModule } from './modules/health/health.module';
+import { ApplicationsModule } from './modules/applications/applications.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    AuthModule,
     PrismaModule,
+    HealthModule,
+    AuthModule,
     ApplicationsModule,
     DashboardModule,
     ProfileModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule {}

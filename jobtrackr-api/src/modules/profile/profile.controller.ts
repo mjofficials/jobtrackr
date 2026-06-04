@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { GetUser } from 'src/common/auth/decorators/get-user.decorator';
 import { UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @ApiTags('Profile')

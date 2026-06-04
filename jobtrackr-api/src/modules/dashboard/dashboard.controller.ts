@@ -1,7 +1,7 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { GetUser } from 'src/common/auth/decorators/get-user.decorator';
 import { DashboardService } from './dashboard.service';
 import { RecentApplicationDto } from './dto/recent-application.dto';
 import { DashboardActivityDto } from './dto/dashboard-activity.dto';
