@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { HealthModule } from './modules/health/health.module';
 import { ApplicationsModule } from './modules/applications/applications.module';
+import { AiModule } from './modules/ai/ai.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ApplicationsModule } from './modules/applications/applications.module';
     ApplicationsModule,
     DashboardModule,
     ProfileModule,
+    AiModule,
   ],
   providers: [],
 })
