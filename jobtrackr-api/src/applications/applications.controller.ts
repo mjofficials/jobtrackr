@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Req,
@@ -12,21 +13,29 @@ import {
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApplicationsService } from './applications.service';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UpdateApplicationDto } from './dto/update-application.dto';
 
 @ApiTags('Applications')
+@ApiBearerAuth()
 @Controller('applications')
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}
 
   @Post('/create')
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Create new application' })
   create(@Body() body: CreateApplicationDto, @Req() req: any) {
     return this.applicationsService.create(body, req.user.userId);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all applications' })
   @UseGuards(JwtAuthGuard)
   findAll(@Req() req: any) {
     return this.applicationsService.findAll(req.user.userId);
@@ -34,14 +43,16 @@ export class ApplicationsController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  findOne(@Param('id') id: string, @Req() req: any) {
+  @ApiOperation({ summary: 'Get application by id' })
+  findOne(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: any) {
     return this.applicationsService.findOne(id, req.user.userId);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update application by id' })
   update(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateApplicationDto,
     @Req() req: any,
   ) {
@@ -50,7 +61,8 @@ export class ApplicationsController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string, @Req() req: any) {
+  @ApiOperation({ summary: 'Delete application' })
+  remove(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: any) {
     return this.applicationsService.remove(id, req.user.userId);
   }
 }
