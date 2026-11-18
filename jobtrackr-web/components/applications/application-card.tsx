@@ -3,7 +3,7 @@
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { toast } from 'sonner';
-import { BellRing, ExternalLink, GripVertical, MoreHorizontal, Pencil } from 'lucide-react';
+import { BellRing, ExternalLink, GripVertical, MoreHorizontal, Pencil, Sparkles } from 'lucide-react';
 import { useMoveApplication } from '@/hooks/use-api';
 import { STATUSES, statusMeta, stageGlow, stageTint } from '@/lib/constants';
 import { cn, formatDate } from '@/lib/utils';
@@ -29,11 +29,12 @@ function salary(a: Application) {
 interface Props {
   app: Application;
   onOpen: () => void;
+  onAi?: () => void;
   /** Rendered inside the drag overlay: no drag handle wiring, lifted look. */
   overlay?: boolean;
 }
 
-export function ApplicationCard({ app, onOpen, overlay }: Props) {
+export function ApplicationCard({ app, onOpen, onAi, overlay }: Props) {
   const move = useMoveApplication();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: app.id, disabled: overlay });
   const pay = salary(app);
@@ -77,6 +78,11 @@ export function ApplicationCard({ app, onOpen, overlay }: Props) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
+            {onAi && (
+              <DropdownMenuItem onSelect={onAi}>
+                <Sparkles aria-hidden className="text-primary" /> AI assistant
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onSelect={onOpen}>
               <Pencil aria-hidden /> Edit details
             </DropdownMenuItem>

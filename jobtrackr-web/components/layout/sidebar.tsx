@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { Briefcase, ChevronsUpDown, KanbanSquare, LayoutDashboard, LogOut, Monitor, Moon, Sun } from 'lucide-react';
+import { Briefcase, ChevronsUpDown, KanbanSquare, LayoutDashboard, LogOut, Monitor, Moon, Sun, UserRound } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { clearToken } from '@/lib/auth';
@@ -25,6 +25,7 @@ import { cn } from '@/lib/utils';
 const NAV = [
   { href: ROUTES.dashboard, label: 'Dashboard', icon: LayoutDashboard },
   { href: ROUTES.applications, label: 'Applications', icon: KanbanSquare },
+  { href: ROUTES.profile, label: 'Profile', icon: UserRound },
 ];
 
 const initials = (name?: string) =>
@@ -58,6 +59,10 @@ export function Sidebar() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side="top" className="w-56">
         <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{me?.email}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={() => router.push(ROUTES.profile)}>
+          <UserRound aria-hidden /> Profile & resume
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Theme</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>

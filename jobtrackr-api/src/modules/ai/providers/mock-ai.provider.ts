@@ -1,66 +1,47 @@
 import { Injectable } from '@nestjs/common';
+import { AiContext, AiProvider, FollowUpEmail, InterviewPrep, MatchScore } from './ai-provider.interface';
 
+/** Deterministic stand-in used when no ANTHROPIC_API_KEY is configured (local dev, tests, demos). */
 @Injectable()
-export class MockAiProvider {
-  async generateFollowUpEmail(company: string, role: string): Promise<string> {
-    return `
-        Dear Hiring Team,
-
-        I hope you're doing well.
-
-        I wanted to follow up regarding my application for the ${role} position at ${company}.
-
-        I remain very interested in the opportunity and would appreciate any updates regarding the hiring process.
-
-        Thank you for your time and consideration.
-
-        Best regards
-    `;
-  }
-
-  async generateInterviewPrep(company: string, role: string): Promise<string[]> {
-    return [
-      `Tell me about yourself.`,
-      `Why do you want to work at ${company}?`,
-      `Why are you interested in the ${role} position?`,
-      `Describe a challenging project you've worked on.`,
-      `What are your strengths and weaknesses?`,
-      `Why should we hire you?`,
-    ];
-  }
-
-  async generateMatchScore(input: {
-    resumeText?: string | null;
-    company: string;
-    role: string;
-    notes?: string | null;
-    jobUrl?: string | null;
-    salaryMin?: number | null;
-    salaryMax?: number | null;
-  }) {
-    let score = 40;
-
-    if (input.resumeText) score += 20;
-    if (input.notes) score += 10;
-    if (input.jobUrl) score += 10;
-    if (input.salaryMin) score += 10;
-    if (input.salaryMax) score += 10;
-
-    score = Math.min(score, 100);
-
-    let summary = '';
-
-    if (score >= 80) {
-      summary = 'Strong match based on available profile and application information.';
-    } else if (score >= 60) {
-      summary = 'Moderate match with some relevant information available.';
-    } else {
-      summary = 'Limited information available to determine job compatibility.';
-    }
-
+export class MockAiProvider implements AiProvider {
+  async generateFollowUpEmail(ctx: AiContext): Promise<FollowUpEmail> {
     return {
-      score,
-      summary,
+      subject: `Following up on my ${ctx.role} application`,
+      body: [
+        'Hi there,',
+        '',
+        `I hope you're doing well. I wanted to follow up on my application for the ${ctx.role} role at ${ctx.company}.`,
+        `I'm still very interested in the position and would be glad to share anything else that helps your decision.`,
+        '',
+        'Thanks for your time,',
+        ctx.userName,
+        '',
+        '(Sample text: add ANTHROPIC_API_KEY to the API for real AI output.)',
+      ].join('\n'),
+    };
+  }
+
+  async generateInterviewPrep(ctx: AiContext): Promise<InterviewPrep> {
+    return {
+      questions: [
+        'Tell me about yourself.',
+        `Why do you want to work at ${ctx.company}?`,
+        `What draws you to the ${ctx.role} role?`,
+        'Describe a challenging project you worked on and what you learned.',
+        'Tell me about a time you disagreed with a teammate.',
+        'Where do you see yourself in two years?',
+      ],
+    };
+  }
+
+  async generateMatchScore(ctx: AiContext): Promise<MatchScore> {
+    // Stable pseudo-score from the inputs so the UI shows something consistent.
+    const seed = [...(ctx.company + ctx.role)].reduce((n, c) => n + c.charCodeAt(0), 0);
+    return {
+      score: 55 + (seed % 36),
+      summary: `Sample result for ${ctx.role} at ${ctx.company}. Add ANTHROPIC_API_KEY to the API for a real analysis of your resume.`,
+      strengths: ['Relevant technical background', 'Experience with similar products'],
+      gaps: ['Sample gap: real analysis needs an API key'],
     };
   }
 }

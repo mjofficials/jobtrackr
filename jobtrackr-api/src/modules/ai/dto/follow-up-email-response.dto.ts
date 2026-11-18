@@ -2,5 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class FollowUpEmailResponseDto {
   @ApiProperty()
-  email: string;
+  subject: string;
+
+  @ApiProperty()
+  body: string;
 }

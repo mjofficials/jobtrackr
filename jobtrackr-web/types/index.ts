@@ -54,3 +54,49 @@ export type RecentApplication = Pick<
   Application,
   'id' | 'company' | 'role' | 'status' | 'updatedAt'
 >;
+
+export interface Profile {
+  id: string;
+  email: string;
+  name: string;
+  resumeText: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AiUsage {
+  used: number;
+  limit: number;
+  remaining: number;
+}
+
+export type AiKind = 'MATCH_SCORE' | 'INTERVIEW_PREP' | 'FOLLOW_UP_EMAIL';
+
+export interface MatchScoreResult {
+  score: number;
+  summary: string;
+  strengths: string[];
+  gaps: string[];
+}
+export interface InterviewPrepResult {
+  questions: string[];
+}
+export interface FollowUpEmailResult {
+  subject: string;
+  body: string;
+}
+
+export interface AiResultByKind {
+  MATCH_SCORE: MatchScoreResult;
+  INTERVIEW_PREP: InterviewPrepResult;
+  FOLLOW_UP_EMAIL: FollowUpEmailResult;
+}
+
+export interface AiLog {
+  id: string;
+  type: AiKind;
+  applicationId: string | null;
+  createdAt: string;
+  /** Present when listed per application. Older logs may be { text }. */
+  result?: unknown;
+}

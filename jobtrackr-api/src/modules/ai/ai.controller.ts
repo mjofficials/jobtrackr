@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AiService } from './ai.service';
 import { GetUser } from 'src/common/auth/decorators/get-user.decorator';
@@ -9,7 +9,7 @@ import { InterviewPrepResponseDto } from './dto/interview-prep-response.dto';
 import { MatchScoreResponseDto } from './dto/match-score-response.dto';
 import { AiUsageResponseDto } from './dto/ai-usage-response.dto';
 
-!ApiTags('AI');
+@ApiTags('AI')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('ai')
@@ -17,9 +17,10 @@ export class AiController {
   constructor(private readonly aiService: AiService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all logs' })
-  findAll(@GetUser('id') userId: string) {
-    return this.aiService.findAll(userId);
+  @ApiOperation({ summary: 'Get AI history (filter by application to include results)' })
+  @ApiQuery({ name: 'applicationId', required: false })
+  findAll(@GetUser('id') userId: string, @Query('applicationId') applicationId?: string) {
+    return this.aiService.findAll(userId, applicationId);
   }
 
   @Get('logs/:id')

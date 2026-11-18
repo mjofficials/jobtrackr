@@ -13,7 +13,7 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { toast } from 'sonner';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Sparkles } from 'lucide-react';
 import { useApplications, useMoveApplication } from '@/hooks/use-api';
 import { useDebounce } from '@/hooks/use-debounce';
 import { STATUSES, ROUTES, statusMeta, type StageMeta, stageGlow, stageTint } from '@/lib/constants';
@@ -21,6 +21,7 @@ import { getErrorMessage } from '@/lib/form-utils';
 import { cn } from '@/lib/utils';
 import { ApplicationCard } from '@/components/applications/application-card';
 import { ApplicationForm } from '@/components/applications/application-form';
+import { AiPanel } from '@/components/ai/ai-panel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -29,11 +30,12 @@ import type { Application, ApplicationStatus } from '@/types';
 
 type Editing = { app?: Application; status?: ApplicationStatus } | null;
 
-function Column({ stage, items, loading, onOpen, onAdd }: {
+function Column({ stage, items, loading, onOpen, onAi, onAdd }: {
   stage: StageMeta;
   items: Application[];
   loading: boolean;
   onOpen: (a: Application) => void;
+  onAi: (a: Application) => void;
   onAdd: () => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage.value });
@@ -57,7 +59,7 @@ function Column({ stage, items, loading, onOpen, onAdd }: {
       <div className="flex flex-1 flex-col gap-2">
         {loading && <Skeleton className="h-20 rounded-xl" />}
         {items.map((app) => (
-          <ApplicationCard key={app.id} app={app} onOpen={() => onOpen(app)} />
+          <ApplicationCard key={app.id} app={app} onOpen={() => onOpen(app)} onAi={() => onAi(app)} />
         ))}
         <button
           onClick={onAdd}
@@ -80,6 +82,9 @@ function Board() {
   const q = useDebounce(query, 200).trim().toLowerCase();
   const [editing, setEditing] = useState<Editing>(params.get('new') ? {} : null);
   const [dragId, setDragId] = useState<string | null>(null);
+  const [aiAppId, setAiAppId] = useState<string | null>(null);
+  // Look up live so the panel reflects edits made while it's open.
+  const aiApp = apps?.find((a) => a.id === aiAppId) ?? null;
 
   // Small activation distance so a click on the handle doesn't start a drag.
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }), useSensor(KeyboardSensor));
@@ -150,6 +155,7 @@ function Board() {
                 items={items}
                 loading={isPending}
                 onOpen={(app) => setEditing({ app })}
+                onAi={(app) => setAiAppId(app.id)}
                 onAdd={() => setEditing({ status: stage.value })}
               />
             ))}
@@ -171,6 +177,21 @@ function Board() {
             <DialogDescription>
               {editing?.app ? `${editing.app.role} at ${editing.app.company}` : 'Only company and role are required. Fill in the rest as you go.'}
             </DialogDescription>
+            {editing?.app && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="mt-2 w-fit"
+                onClick={() => {
+                  const id = editing.app!.id;
+                  close();
+                  setAiAppId(id);
+                }}
+              >
+                <Sparkles aria-hidden className="text-primary" /> AI assistant
+              </Button>
+            )}
           </DialogHeader>
           {editing && (
             <ApplicationForm
@@ -182,6 +203,8 @@ function Board() {
           )}
         </DialogContent>
       </Dialog>
+
+      <AiPanel application={aiApp} onOpenChange={(open) => !open && setAiAppId(null)} />
     </>
   );
 }

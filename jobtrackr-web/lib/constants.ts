@@ -12,6 +12,7 @@ export const ROUTES = {
   register: '/register',
   dashboard: '/dashboard',
   applications: '/applications',
+  profile: '/profile',
 } as const;
 
 export const PUBLIC_ROUTES: string[] = [ROUTES.login, ROUTES.register];
@@ -22,6 +23,9 @@ export const QUERY_KEYS = {
   dashboardSummary: ['dashboard', 'summary'],
   dashboardActivity: ['dashboard', 'activity'],
   dashboardRecent: ['dashboard', 'recent'],
+  profile: ['profile'],
+  aiUsage: ['ai', 'usage'],
+  aiLogs: (applicationId: string) => ['ai', 'logs', applicationId],
 } as const;
 
 export interface StageMeta {

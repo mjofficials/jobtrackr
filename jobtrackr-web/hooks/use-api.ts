@@ -11,6 +11,11 @@ import type {
   ListResponse,
   RecentApplication,
   User,
+  Profile,
+  AiUsage,
+  AiLog,
+  AiKind,
+  AiResultByKind,
 } from '@/types';
 
 const get = <T,>(url: string) => api.get<T>(url).then((r) => r.data);
@@ -81,5 +86,63 @@ export function useDeleteApplication() {
   return useMutation({
     mutationFn: (id: string) => api.delete(`/applications/${id}`),
     onSuccess: invalidate,
+  });
+}
+
+// ---- Profile ----
+
+export const useProfile = () =>
+  useQuery({ queryKey: QUERY_KEYS.profile, queryFn: () => get<Profile>('/profile') });
+
+export function useUpdateProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: Partial<Pick<Profile, 'name' | 'resumeText'>>) =>
+      api.patch<Profile>('/profile/update', input).then((r) => r.data),
+    onSuccess: (profile) => {
+      qc.setQueryData(QUERY_KEYS.profile, profile);
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.me });
+    },
+  });
+}
+
+/** Uploads a PDF and returns its extracted text. Nothing is saved until useUpdateProfile. */
+export function useExtractResume() {
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append('file', file);
+      return api.post<{ text: string; pages: number }>('/profile/resume', form).then((r) => r.data);
+    },
+  });
+}
+
+// ---- AI ----
+
+export const useAiUsage = () =>
+  useQuery({ queryKey: QUERY_KEYS.aiUsage, queryFn: () => get<AiUsage>('/ai/usage') });
+
+export const useAiLogs = (applicationId: string | undefined) =>
+  useQuery({
+    queryKey: QUERY_KEYS.aiLogs(applicationId ?? ''),
+    queryFn: () => get<AiLog[]>(`/ai?applicationId=${applicationId}`),
+    enabled: Boolean(applicationId),
+  });
+
+const AI_ENDPOINT: Record<AiKind, string> = {
+  MATCH_SCORE: '/ai/match-score',
+  INTERVIEW_PREP: '/ai/interview-prep',
+  FOLLOW_UP_EMAIL: '/ai/follow-up-email',
+};
+
+export function useGenerateAi<K extends AiKind>(kind: K, applicationId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      api.post<AiResultByKind[K]>(AI_ENDPOINT[kind], { applicationId }, { timeout: 120_000 }).then((r) => r.data),
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.aiUsage });
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.aiLogs(applicationId) });
+    },
   });
 }

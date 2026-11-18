@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extractResumeText, MAX_RESUME_BYTES } from './resume-parser';
 import { ProfileService } from './profile.service';
 import { GetUser } from 'src/common/auth/decorators/get-user.decorator';
 import { UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
@@ -24,5 +26,15 @@ export class ProfileController {
   @UseGuards(JwtAuthGuard)
   async updateProfile(@GetUser('id') userId: string, @Body() dto: UpdateProfileDto) {
     return this.profileService.updateProfile(userId, dto);
+  }
+
+  @Post('resume')
+  @ApiOperation({ summary: 'Extract text from a resume PDF (does not save it)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_RESUME_BYTES, files: 1 } }))
+  extractResume(@UploadedFile() file: Express.Multer.File) {
+    return extractResumeText(file);
   }
 }
