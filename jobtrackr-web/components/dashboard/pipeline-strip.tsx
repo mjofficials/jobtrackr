@@ -1,4 +1,4 @@
-import { STATUSES } from '@/lib/constants';
+import { STATUSES, stageGlow, stageTint } from '@/lib/constants';
 import type { DashboardSummary } from '@/types';
 
 const KEY = { SAVED: 'saved', APPLIED: 'applied', INTERVIEW: 'interview', OFFER: 'offer', REJECTED: 'rejected' } as const;
@@ -21,14 +21,14 @@ export function PipelineStrip({ summary }: { summary: DashboardSummary }) {
               <div
                 key={s.value}
                 className={`${s.color} animate-grow-x origin-left rounded-full`}
-                style={{ flexGrow: s.count, boxShadow: `0 0 18px ${s.hex}99`, animationDelay: `${i * 80}ms` }}
+                style={{ flexGrow: s.count, boxShadow: stageGlow(s, 18), animationDelay: `${i * 80}ms` }}
               />
             ))
         )}
       </div>
       <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-5">
         {stages.map((s) => (
-          <div key={s.value} className="border-l-2 pl-4" style={{ borderColor: `${s.hex}66` }}>
+          <div key={s.value} className="border-l-2 pl-4" style={{ borderColor: stageTint(s, 0.4) }}>
             <dt className={`text-sm font-medium ${s.text}`}>{s.label}</dt>
             <dd className="mt-1 flex items-baseline gap-2">
               <span className="font-display text-4xl font-semibold tabular-nums">{s.count}</span>

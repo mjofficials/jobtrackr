@@ -2,16 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Dark-first: midnight slate surfaces, stage colours are the only saturated hues. */
+/*
+ * Theme tokens. :root = light, .dark = dark (next-themes sets the class,
+ * following the device setting until the user picks one).
+ * Stage colours are RGB triplets so Tailwind opacity modifiers work.
+ */
 @layer base {
   :root {
+    --background: 228 33% 97%; /* #F6F7FB */
+    --foreground: 215 27% 11%; /* #141A23 */
+    --card: 0 0% 100%;
+    --card-foreground: 215 27% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 27% 11%;
+    --primary: 238 70% 59%; /* #4F55E0 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 225 25% 94%;
+    --secondary-foreground: 215 27% 11%;
+    --muted: 225 25% 95%;
+    --muted-foreground: 218 13% 41%; /* #5B6577 */
+    --accent: 225 30% 93%;
+    --accent-foreground: 215 27% 11%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 225 25% 91%; /* #E3E6EF */
+    --input: 225 20% 86%;
+    --ring: 238 70% 59%;
+    --radius: 0.75rem;
+    --chart-1: 238 70% 59%;
+    --chart-2: 221 83% 53%;
+    --chart-3: 26 90% 37%;
+    --chart-4: 163 94% 24%;
+    --chart-5: 0 72% 51%;
+
+    --stage-saved: 100 116 139; /* #64748B */
+    --stage-applied: 37 99 235; /* #2563EB */
+    --stage-interview: 180 83 9; /* #B45309 */
+    --stage-offer: 4 120 87; /* #047857 */
+    --stage-rejected: 220 38 38; /* #DC2626 */
+
+    /* Light: glows become faint coloured shadows. */
+    --glow-alpha: 0.22;
+    --haze-alpha: 0.05;
+    color-scheme: light;
+  }
+
+  .dark {
     --background: 216 27% 8%; /* #0F141B */
     --foreground: 214 33% 93%;
     --card: 216 25% 11%; /* #151C25 */
     --card-foreground: 214 33% 93%;
     --popover: 216 25% 12%;
     --popover-foreground: 214 33% 93%;
-    --primary: 236 100% 74%; /* #7B83FF indigo */
+    --primary: 236 100% 74%; /* #7B83FF */
     --primary-foreground: 236 40% 12%;
     --secondary: 216 22% 16%;
     --secondary-foreground: 214 33% 93%;
@@ -24,12 +67,20 @@
     --border: 216 20% 19%;
     --input: 216 20% 22%;
     --ring: 236 100% 74%;
-    --radius: 0.75rem;
     --chart-1: 236 100% 74%;
     --chart-2: 215 100% 68%;
     --chart-3: 38 90% 61%;
     --chart-4: 154 69% 55%;
     --chart-5: 0 100% 71%;
+
+    --stage-saved: 148 163 184; /* #94A3B8 */
+    --stage-applied: 91 155 255; /* #5B9BFF */
+    --stage-interview: 245 181 68; /* #F5B544 */
+    --stage-offer: 61 220 151; /* #3DDC97 */
+    --stage-rejected: 255 107 107; /* #FF6B6B */
+
+    --glow-alpha: 0.75;
+    --haze-alpha: 0.08;
     color-scheme: dark;
   }
 }
@@ -41,7 +92,7 @@
   body {
     @apply bg-background text-foreground;
     /* A faint indigo haze at the top of the page gives the canvas depth. */
-    background-image: radial-gradient(60rem 30rem at 70% -10%, hsl(var(--primary) / 0.08), transparent 70%);
+    background-image: radial-gradient(60rem 30rem at 70% -10%, hsl(var(--primary) / var(--haze-alpha)), transparent 70%);
     background-attachment: fixed;
   }
   h1,

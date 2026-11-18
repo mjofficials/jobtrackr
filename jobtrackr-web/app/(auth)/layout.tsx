@@ -1,5 +1,6 @@
 import { Briefcase } from 'lucide-react';
-import { STATUSES } from '@/lib/constants';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { STATUSES, stageGlow } from '@/lib/constants';
 
 // Illustrative cards for the brand panel — not user data.
 const SAMPLE = [
@@ -10,7 +11,8 @@ const SAMPLE = [
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="grid min-h-screen lg:grid-cols-[1fr_1.1fr]">
+    <main className="relative grid min-h-screen lg:grid-cols-[1fr_1.1fr]">
+      <ThemeToggle className="absolute right-4 top-4 z-10" />
       <div className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
           <div className="mb-10 flex items-center gap-2.5">
@@ -35,7 +37,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <span
                 key={s.value}
                 className={`${s.color} animate-grow-x origin-left rounded-full`}
-                style={{ flexGrow: [2, 5, 3, 1, 2][i], boxShadow: `0 0 16px ${s.hex}80`, animationDelay: `${i * 90}ms` }}
+                style={{ flexGrow: [2, 5, 3, 1, 2][i], boxShadow: stageGlow(s, 16), animationDelay: `${i * 90}ms` }}
               />
             ))}
           </div>
@@ -49,7 +51,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                     <p className="text-sm text-muted-foreground">{c.role}</p>
                   </div>
                   <span className={`flex items-center gap-1.5 text-sm ${s.text}`}>
-                    <span className={`h-1.5 w-1.5 rounded-full ${s.color}`} style={{ boxShadow: `0 0 8px ${s.hex}` }} />
+                    <span className={`h-1.5 w-1.5 rounded-full ${s.color}`} style={{ boxShadow: stageGlow(s, 8) }} />
                     {s.label}
                   </span>
                 </div>

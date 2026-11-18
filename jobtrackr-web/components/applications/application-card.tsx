@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { toast } from 'sonner';
 import { BellRing, ExternalLink, GripVertical, MoreHorizontal, Pencil } from 'lucide-react';
 import { useMoveApplication } from '@/hooks/use-api';
-import { STATUSES, statusMeta } from '@/lib/constants';
+import { STATUSES, statusMeta, stageGlow, stageTint } from '@/lib/constants';
 import { cn, formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -47,7 +47,7 @@ export function ApplicationCard({ app, onOpen, overlay }: Props) {
   return (
     <article
       ref={overlay ? undefined : setNodeRef}
-      style={{ transform: CSS.Translate.toString(transform), ['--glow' as string]: `${stage.hex}55` }}
+      style={{ transform: CSS.Translate.toString(transform), ['--glow' as string]: stageTint(stage, 0.33) }}
       className={cn(
         'group relative rounded-xl border bg-card p-3.5 transition-[border-color,box-shadow]',
         'hover:border-[color:var(--glow)] hover:shadow-glow',
@@ -91,7 +91,7 @@ export function ApplicationCard({ app, onOpen, overlay }: Props) {
             <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Move to</DropdownMenuLabel>
             {STATUSES.filter((s) => s.value !== app.status).map((s) => (
               <DropdownMenuItem key={s.value} onSelect={() => moveTo(s.value)}>
-                <span className={`h-2 w-2 rounded-full ${s.color}`} style={{ boxShadow: `0 0 6px ${s.hex}` }} aria-hidden />
+                <span className={`h-2 w-2 rounded-full ${s.color}`} style={{ boxShadow: stageGlow(s, 6) }} aria-hidden />
                 {s.label}
               </DropdownMenuItem>
             ))}

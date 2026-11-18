@@ -6,14 +6,21 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { Loader2, Trash2 } from 'lucide-react';
 import { useDeleteApplication, useSaveApplication } from '@/hooks/use-api';
-import { STATUSES } from '@/lib/constants';
+import { STATUSES, stageGlow } from '@/lib/constants';
 import { getErrorMessage, toDateInput, toOptionalDate, toOptionalInt } from '@/lib/form-utils';
 import { FormField } from '@/components/forms/form-field';
+import { DatePicker, type DatePreset } from '@/components/forms/date-picker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +33,15 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import type { Application, ApplicationStatus } from '@/types';
+
+const APPLIED_PRESETS: DatePreset[] = [
+  { label: 'Today', days: 0 },
+  { label: 'Yesterday', days: -1 },
+];
+const FOLLOWUP_PRESETS: DatePreset[] = [
+  { label: 'In 1 week', days: 7 },
+  { label: 'In 2 weeks', days: 14 },
+];
 
 const optionalNumber = z
   .string()
@@ -126,27 +142,32 @@ export function ApplicationForm({ application: app, defaultStatus = 'SAVED', onD
           <Input {...register('role')} />
         </FormField>
         <FormField label="Stage">
-          <Controller
-            control={control}
-            name="status"
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {STATUSES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      <span className="flex items-center gap-2">
-                        <span className={`h-2 w-2 rounded-full ${s.color}`} style={{ boxShadow: `0 0 6px ${s.hex}` }} />
-                        {s.label}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
+          {(aria) => (
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger {...aria}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUSES.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>
+                        <span className="flex items-center gap-2">
+                          <span
+                            className={`h-2 w-2 rounded-full ${s.color}`}
+                            style={{ boxShadow: stageGlow(s, 6) }}
+                          />
+                          {s.label}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          )}
         </FormField>
         <FormField label="Found on" hint="LinkedIn, referral, company site…">
           <Input {...register('source')} />
@@ -172,24 +193,62 @@ export function ApplicationForm({ application: app, defaultStatus = 'SAVED', onD
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField label="Applied on">
-          <Input type="date" {...register('appliedDate')} />
+          {(aria) => (
+            <Controller
+              control={control}
+              name="appliedDate"
+              render={({ field }) => (
+                <DatePicker
+                  {...aria}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  presets={APPLIED_PRESETS}
+                />
+              )}
+            />
+          )}
         </FormField>
         <FormField label="Follow up on">
-          <Input type="date" {...register('followupDate')} />
+          {(aria) => (
+            <Controller
+              control={control}
+              name="followupDate"
+              render={({ field }) => (
+                <DatePicker
+                  {...aria}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  presets={FOLLOWUP_PRESETS}
+                />
+              )}
+            />
+          )}
         </FormField>
       </div>
 
       <FormField label="Notes">
-        <Textarea rows={3} placeholder="Recruiter name, referral, what stood out…" {...register('notes')} />
+        <Textarea
+          rows={3}
+          placeholder="Recruiter name, referral, what stood out…"
+          {...register('notes')}
+        />
       </FormField>
 
-      {error && <p role="alert" className="text-sm text-destructive">{getErrorMessage(error)}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {getErrorMessage(error)}
+        </p>
+      )}
 
       <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:items-center">
         {app && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button type="button" variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive sm:mr-auto">
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive sm:mr-auto"
+              >
                 <Trash2 aria-hidden /> Delete
               </Button>
             </AlertDialogTrigger>
@@ -202,7 +261,10 @@ export function ApplicationForm({ application: app, defaultStatus = 'SAVED', onD
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Keep it</AlertDialogCancel>
-                <AlertDialogAction onClick={onDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                <AlertDialogAction
+                  onClick={onDelete}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
                   Delete application
                 </AlertDialogAction>
               </AlertDialogFooter>

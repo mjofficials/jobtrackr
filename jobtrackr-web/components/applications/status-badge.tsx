@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { statusMeta } from '@/lib/constants';
+import { statusMeta, stageGlow, stageTint } from '@/lib/constants';
 import type { ApplicationStatus } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -10,9 +10,9 @@ export function StatusBadge({ status, className }: { status: ApplicationStatus; 
     <Badge
       variant="outline"
       className={cn('gap-1.5 border-transparent font-medium', s.text, className)}
-      style={{ backgroundColor: `${s.hex}1A` }}
+      style={{ backgroundColor: stageTint(s, 0.1) }}
     >
-      <span className={cn('h-1.5 w-1.5 rounded-full', s.color)} style={{ boxShadow: `0 0 8px ${s.hex}` }} aria-hidden />
+      <span className={cn('h-1.5 w-1.5 rounded-full', s.color)} style={{ boxShadow: stageGlow(s, 8) }} aria-hidden />
       {s.label}
     </Badge>
   );

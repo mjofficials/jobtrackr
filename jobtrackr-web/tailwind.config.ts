@@ -30,13 +30,13 @@ const config: Config = {
         input: hsl('input'),
         ring: hsl('ring'),
         chart: { 1: hsl('chart-1'), 2: hsl('chart-2'), 3: hsl('chart-3'), 4: hsl('chart-4'), 5: hsl('chart-5') },
-        // The five pipeline stages: the only saturated colours in the UI.
+        // The five pipeline stages, per theme via CSS variables (globals.css).
         stage: {
-          saved: '#94A3B8',
-          applied: '#5B9BFF',
-          interview: '#F5B544',
-          offer: '#3DDC97',
-          rejected: '#FF6B6B',
+          saved: 'rgb(var(--stage-saved) / <alpha-value>)',
+          applied: 'rgb(var(--stage-applied) / <alpha-value>)',
+          interview: 'rgb(var(--stage-interview) / <alpha-value>)',
+          offer: 'rgb(var(--stage-offer) / <alpha-value>)',
+          rejected: 'rgb(var(--stage-rejected) / <alpha-value>)',
         },
       },
       borderRadius: {
@@ -45,7 +45,7 @@ const config: Config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       boxShadow: {
-        glow: '0 0 24px -4px var(--glow, hsl(var(--primary) / 0.6))',
+        glow: '0 0 24px -4px var(--glow, hsl(var(--primary) / var(--glow-alpha)))',
       },
       keyframes: {
         'grow-x': { from: { transform: 'scaleX(0)' }, to: { transform: 'scaleX(1)' } },

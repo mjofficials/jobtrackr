@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { Plus, Search } from 'lucide-react';
 import { useApplications, useMoveApplication } from '@/hooks/use-api';
 import { useDebounce } from '@/hooks/use-debounce';
-import { STATUSES, ROUTES, statusMeta, type StageMeta } from '@/lib/constants';
+import { STATUSES, ROUTES, statusMeta, type StageMeta, stageGlow, stageTint } from '@/lib/constants';
 import { getErrorMessage } from '@/lib/form-utils';
 import { cn } from '@/lib/utils';
 import { ApplicationCard } from '@/components/applications/application-card';
@@ -45,11 +45,11 @@ function Column({ stage, items, loading, onOpen, onAdd }: {
         'flex min-h-[24rem] flex-col rounded-2xl border border-transparent bg-card/40 p-2.5 transition-colors',
         isOver && 'border-dashed bg-accent/40'
       )}
-      style={isOver ? { borderColor: `${stage.hex}88` } : undefined}
+      style={isOver ? { borderColor: stageTint(stage, 0.53) } : undefined}
     >
       <header className="flex items-center justify-between px-1.5 pb-3 pt-1">
         <h2 id={`col-${stage.value}`} className="flex items-center gap-2 font-sans text-sm font-semibold tracking-normal">
-          <span className={`h-2 w-2 rounded-full ${stage.color}`} style={{ boxShadow: `0 0 10px ${stage.hex}` }} aria-hidden />
+          <span className={`h-2 w-2 rounded-full ${stage.color}`} style={{ boxShadow: stageGlow(stage, 10) }} aria-hidden />
           {stage.label}
         </h2>
         <span className="rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">{items.length}</span>

@@ -18,7 +18,7 @@ const DAY = 86_400_000;
 function Stat({ icon: Icon, label, value, note, glow }: { icon: typeof Target; label: string; value: string; note: string; glow: string }) {
   return (
     <Card className="relative overflow-hidden">
-      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl" style={{ background: glow, opacity: 0.25 }} />
+      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl" style={{ background: glow, opacity: 'calc(var(--glow-alpha) / 3)' }} />
       <CardContent className="p-5">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Icon className="h-4 w-4" aria-hidden /> {label}
@@ -92,21 +92,21 @@ export default function DashboardPage() {
           label="Interview rate"
           value={interviewRate === null ? '–' : `${interviewRate}%`}
           note={sent > 0 ? `of ${sent} sent applications reached interview or offer` : 'Shows once you’ve applied somewhere'}
-          glow="#F5B544"
+          glow="rgb(var(--stage-interview))"
         />
         <Stat
           icon={TrendingUp}
           label="Added this month"
           value={a ? String(a.applicationsThisMonth) : '–'}
           note={!a || a.applicationsLastMonth === 0 ? 'No applications last month to compare' : delta === 0 ? 'Same as last month' : `${Math.abs(delta)} ${delta > 0 ? 'more' : 'fewer'} than last month`}
-          glow="#7B83FF"
+          glow="hsl(var(--primary))"
         />
         <Stat
           icon={BellRing}
           label="Follow-ups this week"
           value={apps ? String(followUps.length) : '–'}
           note={followUps.length ? 'Including any that are overdue' : 'You’re all caught up'}
-          glow="#3DDC97"
+          glow="rgb(var(--stage-offer))"
         />
       </div>
 

@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { Briefcase, ChevronsUpDown, KanbanSquare, LayoutDashboard, LogOut } from 'lucide-react';
+import { Briefcase, ChevronsUpDown, KanbanSquare, LayoutDashboard, LogOut, Monitor, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { clearToken } from '@/lib/auth';
-import { ROUTES, STATUSES } from '@/lib/constants';
+import { ROUTES, STATUSES, stageGlow } from '@/lib/constants';
 import { useApplications, useMe } from '@/hooks/use-api';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -13,6 +15,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -32,6 +36,7 @@ export function Sidebar() {
   const qc = useQueryClient();
   const { data: me } = useMe();
   const { data: apps } = useApplications();
+  const { theme, setTheme } = useTheme();
 
   const logout = () => {
     clearToken();
@@ -53,6 +58,13 @@ export function Sidebar() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side="top" className="w-56">
         <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{me?.email}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Theme</DropdownMenuLabel>
+        <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+          <DropdownMenuRadioItem value="light"><Sun aria-hidden /> Light</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="dark"><Moon aria-hidden /> Dark</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="system"><Monitor aria-hidden /> Match device</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={logout}>
           <LogOut aria-hidden /> Log out
@@ -93,7 +105,10 @@ export function Sidebar() {
           })}
         </nav>
 
-        <div className="md:hidden">{userMenu}</div>
+        <div className="flex items-center md:hidden">
+          <ThemeToggle />
+          {userMenu}
+        </div>
       </div>
 
       {/* Stage counts: a glanceable legend that doubles as a live summary. */}
@@ -103,7 +118,7 @@ export function Sidebar() {
           {STATUSES.map((s) => (
             <li key={s.value} className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-2.5 text-muted-foreground">
-                <span className={`h-2 w-2 rounded-full ${s.color}`} style={{ boxShadow: `0 0 8px ${s.hex}` }} aria-hidden />
+                <span className={`h-2 w-2 rounded-full ${s.color}`} style={{ boxShadow: stageGlow(s, 8) }} aria-hidden />
                 {s.label}
               </span>
               <span className="tabular-nums">{apps?.filter((a) => a.status === s.value).length ?? '–'}</span>
@@ -112,7 +127,10 @@ export function Sidebar() {
         </ul>
       </div>
 
-      <div className="mt-auto hidden border-t p-3 md:block">{userMenu}</div>
+      <div className="mt-auto hidden items-center gap-1 border-t p-3 md:flex">
+        <div className="min-w-0 flex-1">{userMenu}</div>
+        <ThemeToggle />
+      </div>
     </aside>
   );
 }
