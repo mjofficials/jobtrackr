@@ -66,13 +66,13 @@ export function Sidebar() {
         <DropdownMenuSeparator />
         <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Theme</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-          <DropdownMenuRadioItem value="light"><Sun aria-hidden /> Light</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="dark"><Moon aria-hidden /> Dark</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="system"><Monitor aria-hidden /> Match device</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="light"><Sun aria-hidden size={16} />&nbsp;Light</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="dark"><Moon aria-hidden size={16} />&nbsp;Dark</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="system"><Monitor aria-hidden size={16} />&nbsp;Match device</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={logout}>
-          <LogOut aria-hidden /> Log out
+          <LogOut aria-hidden size={16} /> Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -12,6 +12,7 @@ import { getErrorMessage } from '@/lib/form-utils';
 import { FormField } from '@/components/forms/form-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Loader2 } from 'lucide-react';
 
 // Mirrors the API's RegisterDto rules.
@@ -52,7 +53,7 @@ export function RegisterForm() {
         <Input type="email" autoComplete="email" {...register('email')} />
       </FormField>
       <FormField label="Password" hint="At least 8 characters" error={formState.errors.password?.message}>
-        <Input type="password" autoComplete="new-password" {...register('password')} />
+        <PasswordInput autoComplete="new-password" {...register('password')} />
       </FormField>
       {signup.isError && (
         <p role="alert" className="text-sm text-destructive">

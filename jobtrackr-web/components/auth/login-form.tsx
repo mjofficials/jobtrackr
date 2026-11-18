@@ -12,6 +12,7 @@ import { getErrorMessage } from '@/lib/form-utils';
 import { FormField } from '@/components/forms/form-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Loader2 } from 'lucide-react';
 
 const schema = z.object({
@@ -41,7 +42,7 @@ export function LoginForm() {
         <Input type="email" autoComplete="email" {...register('email')} />
       </FormField>
       <FormField label="Password" error={formState.errors.password?.message}>
-        <Input type="password" autoComplete="current-password" {...register('password')} />
+        <PasswordInput autoComplete="current-password" {...register('password')} />
       </FormField>
       {login.isError && (
         <p role="alert" className="text-sm text-destructive">
