@@ -6,6 +6,11 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: (process.env.CORS_ORIGIN ?? 'http://localhost:3000').split(','),
+    credentials: true,
+  });
+
   const config = new DocumentBuilder()
     .setTitle('JobTrackr API')
     .setDescription('Job application tracking system')

@@ -2,28 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark-first: midnight slate surfaces, stage colours are the only saturated hues. */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 216 27% 8%; /* #0F141B */
+    --foreground: 214 33% 93%;
+    --card: 216 25% 11%; /* #151C25 */
+    --card-foreground: 214 33% 93%;
+    --popover: 216 25% 12%;
+    --popover-foreground: 214 33% 93%;
+    --primary: 236 100% 74%; /* #7B83FF indigo */
+    --primary-foreground: 236 40% 12%;
+    --secondary: 216 22% 16%;
+    --secondary-foreground: 214 33% 93%;
+    --muted: 216 22% 15%;
+    --muted-foreground: 215 16% 62%;
+    --accent: 216 22% 18%;
+    --accent-foreground: 214 33% 96%;
+    --destructive: 0 100% 71%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 216 20% 19%;
+    --input: 216 20% 22%;
+    --ring: 236 100% 74%;
+    --radius: 0.75rem;
+    --chart-1: 236 100% 74%;
+    --chart-2: 215 100% 68%;
+    --chart-3: 38 90% 61%;
+    --chart-4: 154 69% 55%;
+    --chart-5: 0 100% 71%;
+    color-scheme: dark;
   }
 }
 
@@ -33,5 +40,22 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* A faint indigo haze at the top of the page gives the canvas depth. */
+    background-image: radial-gradient(60rem 30rem at 70% -10%, hsl(var(--primary) / 0.08), transparent 70%);
+    background-attachment: fixed;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }

@@ -10,7 +10,7 @@ import { AiModule } from './modules/ai/ai.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     HealthModule,
     AuthModule,

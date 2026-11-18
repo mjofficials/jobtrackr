@@ -23,3 +23,6 @@ prisma/migrations/
 # Fly.io
 fly.toml
 /generated/prisma
+
+# TypeScript incremental build info
+*.tsbuildinfo

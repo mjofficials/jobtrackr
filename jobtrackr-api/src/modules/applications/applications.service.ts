@@ -9,12 +9,7 @@ export class ApplicationsService {
 
   async create(dto: CreateApplicationDto, userId: string) {
     const application = await this.prisma.application.create({
-      data: {
-        company: dto.company,
-        role: dto.role,
-        status: dto.status,
-        userId,
-      },
+      data: { ...dto, userId },
     });
 
     return application;
